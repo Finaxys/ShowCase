@@ -1,0 +1,36 @@
+version: '3.1'
+services:
+    mongo:
+        image: mongo
+        ports:
+            - "27017:27017"
+
+    service2-app:
+        image: dtr.finaxys.com/mbouluad/service2:1.0
+        environment:
+            - SPRING_PROFILES_ACTIVE=dev
+            - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017
+            - SPRING_DATA_MONGODB_DATABASE=service2
+            - JHIPSTER_SLEEP=10
+        ports:
+            - 8081:8081
+        links:
+            - mongo
+        depends_on:
+            - mongo
+    mymongo:
+        image: mongo
+        command: mongod --port 27018
+        ports:
+            - "27018:27018"
+    api:
+        image: dtr.finaxys.com/mbouluad/service1:1.0
+        volumes:
+            - /usr/src/api/node_modules
+        ports:
+            - "8888:8888"
+        depends_on:
+            - mymongo
+        links:
+            - mymongo
+
