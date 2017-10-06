@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CacheConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Service 2</a> &gt; <a href="index.source.html" class="el_package">com.mycompany.myapp.config</a> &gt; <span class="el_source">CacheConfiguration.java</span></div><h1>CacheConfiguration.java</h1><pre class="source lang-java linenums">package com.mycompany.myapp.config;
+
+import io.github.jhipster.config.JHipsterConstants;
+import io.github.jhipster.config.JHipsterProperties;
+
+import com.hazelcast.config.Config;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.EvictionPolicy;
+import com.hazelcast.config.MaxSizeConfig;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.*;
+import org.springframework.core.env.Environment;
+
+import javax.annotation.PreDestroy;
+
+@Configuration
+@EnableCaching
+@AutoConfigureAfter(value = { MetricsConfiguration.class })
+@AutoConfigureBefore(value = { WebConfigurer.class, DatabaseConfiguration.class })
+public class CacheConfiguration {
+
+<span class="fc" id="L31">    private final Logger log = LoggerFactory.getLogger(CacheConfiguration.class);</span>
+
+    private final Environment env;
+
+<span class="fc" id="L35">    public CacheConfiguration(Environment env) {</span>
+<span class="fc" id="L36">        this.env = env;</span>
+<span class="fc" id="L37">    }</span>
+
+    @PreDestroy
+    public void destroy() {
+<span class="nc" id="L41">        log.info(&quot;Closing Cache Manager&quot;);</span>
+<span class="nc" id="L42">        Hazelcast.shutdownAll();</span>
+<span class="nc" id="L43">    }</span>
+
+    @Bean
+    public CacheManager cacheManager(HazelcastInstance hazelcastInstance) {
+<span class="fc" id="L47">        log.debug(&quot;Starting HazelcastCacheManager&quot;);</span>
+<span class="fc" id="L48">        CacheManager cacheManager = new com.hazelcast.spring.cache.HazelcastCacheManager(hazelcastInstance);</span>
+<span class="fc" id="L49">        return cacheManager;</span>
+    }
+
+    @Bean
+    public HazelcastInstance hazelcastInstance(JHipsterProperties jHipsterProperties) {
+<span class="fc" id="L54">        log.debug(&quot;Configuring Hazelcast&quot;);</span>
+<span class="fc" id="L55">        HazelcastInstance hazelCastInstance = Hazelcast.getHazelcastInstanceByName(&quot;service2&quot;);</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (hazelCastInstance != null) {</span>
+<span class="nc" id="L57">            log.debug(&quot;Hazelcast already initialized&quot;);</span>
+<span class="nc" id="L58">            return hazelCastInstance;</span>
+        }
+<span class="fc" id="L60">        Config config = new Config();</span>
+<span class="fc" id="L61">        config.setInstanceName(&quot;service2&quot;);</span>
+<span class="fc" id="L62">        config.getNetworkConfig().setPort(5701);</span>
+<span class="fc" id="L63">        config.getNetworkConfig().setPortAutoIncrement(true);</span>
+
+        // In development, remove multicast auto-configuration
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (env.acceptsProfiles(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT)) {</span>
+<span class="nc" id="L67">            System.setProperty(&quot;hazelcast.local.localAddress&quot;, &quot;127.0.0.1&quot;);</span>
+
+<span class="nc" id="L69">            config.getNetworkConfig().getJoin().getAwsConfig().setEnabled(false);</span>
+<span class="nc" id="L70">            config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);</span>
+<span class="nc" id="L71">            config.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(false);</span>
+        }
+<span class="fc" id="L73">        config.getMapConfigs().put(&quot;default&quot;, initializeDefaultMapConfig());</span>
+<span class="fc" id="L74">        config.getMapConfigs().put(&quot;com.mycompany.myapp.domain.*&quot;, initializeDomainMapConfig(jHipsterProperties));</span>
+<span class="fc" id="L75">        return Hazelcast.newHazelcastInstance(config);</span>
+    }
+
+    private MapConfig initializeDefaultMapConfig() {
+<span class="fc" id="L79">        MapConfig mapConfig = new MapConfig();</span>
+
+    /*
+        Number of backups. If 1 is set as the backup-count for example,
+        then all entries of the map will be copied to another JVM for
+        fail-safety. Valid numbers are 0 (no backup), 1, 2, 3.
+     */
+<span class="fc" id="L86">        mapConfig.setBackupCount(0);</span>
+
+    /*
+        Valid values are:
+        NONE (no eviction),
+        LRU (Least Recently Used),
+        LFU (Least Frequently Used).
+        NONE is the default.
+     */
+<span class="fc" id="L95">        mapConfig.setEvictionPolicy(EvictionPolicy.LRU);</span>
+
+    /*
+        Maximum size of the map. When max size is reached,
+        map is evicted based on the policy defined.
+        Any integer between 0 and Integer.MAX_VALUE. 0 means
+        Integer.MAX_VALUE. Default is 0.
+     */
+<span class="fc" id="L103">        mapConfig.setMaxSizeConfig(new MaxSizeConfig(0, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));</span>
+
+<span class="fc" id="L105">        return mapConfig;</span>
+    }
+
+    private MapConfig initializeDomainMapConfig(JHipsterProperties jHipsterProperties) {
+<span class="fc" id="L109">        MapConfig mapConfig = new MapConfig();</span>
+<span class="fc" id="L110">        mapConfig.setTimeToLiveSeconds(jHipsterProperties.getCache().getHazelcast().getTimeToLiveSeconds());</span>
+<span class="fc" id="L111">        return mapConfig;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

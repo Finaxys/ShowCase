@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwaggerBasePathRewritingFilter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Service 2</a> &gt; <a href="index.source.html" class="el_package">com.mycompany.myapp.gateway.responserewriting</a> &gt; <span class="el_source">SwaggerBasePathRewritingFilter.java</span></div><h1>SwaggerBasePathRewritingFilter.java</h1><pre class="source lang-java linenums">package com.mycompany.myapp.gateway.responserewriting;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.zuul.context.RequestContext;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter;
+import springfox.documentation.swagger2.web.Swagger2Controller;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.zip.GZIPInputStream;
+
+/**
+ * Zuul filter to rewrite micro-services Swagger URL Base Path.
+ */
+<span class="fc" id="L20">public class SwaggerBasePathRewritingFilter extends SendResponseFilter {</span>
+
+<span class="fc" id="L22">    private final Logger log = LoggerFactory.getLogger(SwaggerBasePathRewritingFilter.class);</span>
+
+<span class="fc" id="L24">    private ObjectMapper mapper = new ObjectMapper();</span>
+
+    @Override
+    public String filterType() {
+<span class="fc" id="L28">        return &quot;post&quot;;</span>
+    }
+
+    @Override
+    public int filterOrder() {
+<span class="nc" id="L33">        return 100;</span>
+    }
+
+    /**
+     * Filter requests to micro-services Swagger docs.
+     */
+    @Override
+    public boolean shouldFilter() {
+<span class="fc" id="L41">        return RequestContext.getCurrentContext().getRequest().getRequestURI().endsWith(Swagger2Controller.DEFAULT_URL);</span>
+    }
+
+    @Override
+    public Object run() {
+<span class="fc" id="L46">        RequestContext context = RequestContext.getCurrentContext();</span>
+
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if (!context.getResponseGZipped()) {</span>
+<span class="fc" id="L49">            context.getResponse().setCharacterEncoding(&quot;UTF-8&quot;);</span>
+        }
+
+<span class="fc" id="L52">        String rewrittenResponse = rewriteBasePath(context);</span>
+<span class="fc" id="L53">        context.setResponseBody(rewrittenResponse);</span>
+<span class="fc" id="L54">        return null;</span>
+    }
+
+    private String rewriteBasePath(RequestContext context) {
+<span class="fc" id="L58">        InputStream responseDataStream = context.getResponseDataStream();</span>
+<span class="fc" id="L59">        String requestUri = RequestContext.getCurrentContext().getRequest().getRequestURI();</span>
+        try {
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">            if (context.getResponseGZipped()) {</span>
+<span class="nc" id="L62">                responseDataStream = new GZIPInputStream(context.getResponseDataStream());</span>
+            }
+<span class="fc" id="L64">            String response = IOUtils.toString(responseDataStream, StandardCharsets.UTF_8);</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">            if (response != null) {</span>
+<span class="fc" id="L66">                LinkedHashMap&lt;String, Object&gt; map = this.mapper.readValue(response, LinkedHashMap.class);</span>
+
+<span class="fc" id="L68">                String basePath = requestUri.replace(Swagger2Controller.DEFAULT_URL,&quot;&quot;);</span>
+<span class="fc" id="L69">                map.put(&quot;basePath&quot;,basePath);</span>
+<span class="fc" id="L70">                log.debug(&quot;Swagger-docs: rewritten Base URL with correct micro-service route: {}&quot;, basePath);</span>
+<span class="fc" id="L71">                return mapper.writeValueAsString(map);</span>
+            }
+<span class="nc" id="L73">        } catch (IOException e) {</span>
+<span class="nc" id="L74">            log.error(&quot;Swagger-docs filter error&quot;, e);</span>
+<span class="nc" id="L75">        }</span>
+<span class="nc" id="L76">        return null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

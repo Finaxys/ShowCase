@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GatewayConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Service 2</a> &gt; <a href="index.source.html" class="el_package">com.mycompany.myapp.config</a> &gt; <span class="el_source">GatewayConfiguration.java</span></div><h1>GatewayConfiguration.java</h1><pre class="source lang-java linenums">package com.mycompany.myapp.config;
+
+import io.github.jhipster.config.JHipsterProperties;
+
+import com.mycompany.myapp.gateway.ratelimiting.RateLimitingFilter;
+import com.mycompany.myapp.gateway.accesscontrol.AccessControlFilter;
+import com.mycompany.myapp.gateway.responserewriting.SwaggerBasePathRewritingFilter;
+
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+<span class="fc" id="L15">public class GatewayConfiguration {</span>
+
+    @Configuration
+<span class="fc" id="L18">    public static class SwaggerBasePathRewritingConfiguration {</span>
+
+        @Bean
+        public SwaggerBasePathRewritingFilter swaggerBasePathRewritingFilter(){
+<span class="fc" id="L22">            return new SwaggerBasePathRewritingFilter();</span>
+        }
+    }
+
+    @Configuration
+<span class="fc" id="L27">    public static class AccessControlFilterConfiguration {</span>
+
+        @Bean
+        public AccessControlFilter accessControlFilter(RouteLocator routeLocator, JHipsterProperties jHipsterProperties){
+<span class="fc" id="L31">            return new AccessControlFilter(routeLocator, jHipsterProperties);</span>
+        }
+    }
+
+    /**
+     * Configures the Zuul filter that limits the number of API calls per user.
+     * &lt;p&gt;
+     * This uses Bucke4J to limit the API calls, see {@link com.mycompany.myapp.gateway.ratelimiting.RateLimitingFilter}.
+     */
+    @Configuration
+    @ConditionalOnProperty(&quot;jhipster.gateway.rate-limiting.enabled&quot;)
+    public static class RateLimitingConfiguration {
+
+        private final JHipsterProperties jHipsterProperties;
+
+<span class="nc" id="L46">        public RateLimitingConfiguration(JHipsterProperties jHipsterProperties) {</span>
+<span class="nc" id="L47">            this.jHipsterProperties = jHipsterProperties;</span>
+<span class="nc" id="L48">        }</span>
+
+        @Bean
+        public RateLimitingFilter rateLimitingFilter() {
+<span class="nc" id="L52">            return new RateLimitingFilter(jHipsterProperties);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

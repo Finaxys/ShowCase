@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RateLimitingFilter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Service 2</a> &gt; <a href="index.source.html" class="el_package">com.mycompany.myapp.gateway.ratelimiting</a> &gt; <span class="el_source">RateLimitingFilter.java</span></div><h1>RateLimitingFilter.java</h1><pre class="source lang-java linenums">package com.mycompany.myapp.gateway.ratelimiting;
+
+import com.mycompany.myapp.security.SecurityUtils;
+
+import java.time.Duration;
+import java.util.function.Supplier;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.cache.configuration.CompleteConfiguration;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.spi.CachingProvider;
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+
+import io.github.bucket4j.*;
+import io.github.bucket4j.grid.GridBucketState;
+import io.github.bucket4j.grid.ProxyManager;
+import io.github.bucket4j.grid.jcache.JCache;
+import io.github.jhipster.config.JHipsterProperties;
+
+/**
+ * Zuul filter for limiting the number of HTTP calls per client.
+ *
+ * See the Bucket4j documentation at https://github.com/vladimir-bukhtoyarov/bucket4j
+ * https://github.com/vladimir-bukhtoyarov/bucket4j/blob/master/doc-pages/jcache-usage
+ * .md#example-1---limiting-access-to-http-server-by-ip-address
+ */
+public class RateLimitingFilter extends ZuulFilter {
+
+<span class="nc" id="L36">    private final Logger log = LoggerFactory.getLogger(RateLimitingFilter.class);</span>
+
+    public final static String GATEWAY_RATE_LIMITING_CACHE_NAME = &quot;gateway-rate-limiting&quot;;
+
+    private final JHipsterProperties jHipsterProperties;
+
+    private javax.cache.Cache&lt;String, GridBucketState&gt; cache;
+
+    private ProxyManager&lt;String&gt; buckets;
+
+<span class="nc" id="L46">    public RateLimitingFilter(JHipsterProperties jHipsterProperties) {</span>
+<span class="nc" id="L47">        this.jHipsterProperties = jHipsterProperties;</span>
+
+<span class="nc" id="L49">        CachingProvider cachingProvider = Caching.getCachingProvider();</span>
+<span class="nc" id="L50">        CacheManager cacheManager = cachingProvider.getCacheManager();</span>
+<span class="nc" id="L51">        CompleteConfiguration&lt;String, GridBucketState&gt; config =</span>
+            new MutableConfiguration&lt;String, GridBucketState&gt;()
+<span class="nc" id="L53">                .setTypes(String.class, GridBucketState.class);</span>
+
+<span class="nc" id="L55">        this.cache = cacheManager.createCache(GATEWAY_RATE_LIMITING_CACHE_NAME, config);</span>
+<span class="nc" id="L56">        this.buckets = Bucket4j.extension(JCache.class).proxyManagerForCache(cache);</span>
+<span class="nc" id="L57">    }</span>
+
+    @Override
+    public String filterType() {
+<span class="nc" id="L61">        return &quot;pre&quot;;</span>
+    }
+
+    @Override
+    public int filterOrder() {
+<span class="nc" id="L66">        return 10;</span>
+    }
+
+    @Override
+    public boolean shouldFilter() {
+        // specific APIs can be filtered out using
+        // if (RequestContext.getCurrentContext().getRequest().getRequestURI().startsWith(&quot;/api&quot;)) { ... }
+<span class="nc" id="L73">        return true;</span>
+    }
+
+    @Override
+    public Object run() {
+<span class="nc" id="L78">        String bucketId = getId(RequestContext.getCurrentContext().getRequest());</span>
+<span class="nc" id="L79">        Bucket bucket = buckets.getProxy(bucketId, getConfigSupplier());</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (bucket.tryConsume(1)) {</span>
+            // the limit is not exceeded
+<span class="nc" id="L82">            log.debug(&quot;API rate limit OK for {}&quot;, bucketId);</span>
+        } else {
+            // limit is exceeded
+<span class="nc" id="L85">            log.info(&quot;API rate limit exceeded for {}&quot;, bucketId);</span>
+<span class="nc" id="L86">            apiLimitExceeded();</span>
+        }
+<span class="nc" id="L88">        return null;</span>
+    }
+
+    private Supplier&lt;BucketConfiguration&gt; getConfigSupplier() {
+<span class="nc" id="L92">        return () -&gt; {</span>
+<span class="nc" id="L93">            JHipsterProperties.Gateway.RateLimiting rateLimitingProperties =</span>
+<span class="nc" id="L94">                jHipsterProperties.getGateway().getRateLimiting();</span>
+
+<span class="nc" id="L96">            return Bucket4j.configurationBuilder()</span>
+<span class="nc" id="L97">                .addLimit(Bandwidth.simple(rateLimitingProperties.getLimit(),</span>
+<span class="nc" id="L98">                    Duration.ofSeconds(rateLimitingProperties.getDurationInSeconds())))</span>
+<span class="nc" id="L99">                .buildConfiguration();</span>
+        };
+    }
+
+    /**
+     * Create a Zuul response error when the API limit is exceeded.
+     */
+    private void apiLimitExceeded() {
+<span class="nc" id="L107">        RequestContext ctx = RequestContext.getCurrentContext();</span>
+<span class="nc" id="L108">        ctx.setResponseStatusCode(HttpStatus.TOO_MANY_REQUESTS.value());</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (ctx.getResponseBody() == null) {</span>
+<span class="nc" id="L110">            ctx.setResponseBody(&quot;API rate limit exceeded&quot;);</span>
+<span class="nc" id="L111">            ctx.setSendZuulResponse(false);</span>
+        }
+<span class="nc" id="L113">    }</span>
+
+    /**
+     * The ID that will identify the limit: the user login or the user IP address.
+     */
+    private String getId(HttpServletRequest httpServletRequest) {
+<span class="nc" id="L119">        String login = SecurityUtils.getCurrentUserLogin();</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (login != null) {</span>
+<span class="nc" id="L121">            return login;</span>
+        } else {
+<span class="nc" id="L123">            return httpServletRequest.getRemoteAddr();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

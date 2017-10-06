@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InitialSetupMigration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Service 2</a> &gt; <a href="index.source.html" class="el_package">com.mycompany.myapp.config.dbmigrations</a> &gt; <span class="el_source">InitialSetupMigration.java</span></div><h1>InitialSetupMigration.java</h1><pre class="source lang-java linenums">package com.mycompany.myapp.config.dbmigrations;
+
+import com.mycompany.myapp.domain.Authority;
+import com.mycompany.myapp.domain.User;
+import com.mycompany.myapp.security.AuthoritiesConstants;
+
+import com.github.mongobee.changeset.ChangeLog;
+import com.github.mongobee.changeset.ChangeSet;
+import org.springframework.data.mongodb.core.MongoTemplate;
+
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+
+/**
+ * Creates the initial database setup
+ */
+@ChangeLog(order = &quot;001&quot;)
+<span class="fc" id="L19">public class InitialSetupMigration {</span>
+
+    @ChangeSet(order = &quot;01&quot;, author = &quot;initiator&quot;, id = &quot;01-addAuthorities&quot;)
+    public void addAuthorities(MongoTemplate mongoTemplate) {
+<span class="fc" id="L23">        Authority adminAuthority = new Authority();</span>
+<span class="fc" id="L24">        adminAuthority.setName(AuthoritiesConstants.ADMIN);</span>
+<span class="fc" id="L25">        Authority userAuthority = new Authority();</span>
+<span class="fc" id="L26">        userAuthority.setName(AuthoritiesConstants.USER);</span>
+<span class="fc" id="L27">        mongoTemplate.save(adminAuthority);</span>
+<span class="fc" id="L28">        mongoTemplate.save(userAuthority);</span>
+<span class="fc" id="L29">    }</span>
+
+    @ChangeSet(order = &quot;02&quot;, author = &quot;initiator&quot;, id = &quot;02-addUsers&quot;)
+    public void addUsers(MongoTemplate mongoTemplate) {
+<span class="fc" id="L33">        Authority adminAuthority = new Authority();</span>
+<span class="fc" id="L34">        adminAuthority.setName(AuthoritiesConstants.ADMIN);</span>
+<span class="fc" id="L35">        Authority userAuthority = new Authority();</span>
+<span class="fc" id="L36">        userAuthority.setName(AuthoritiesConstants.USER);</span>
+
+<span class="fc" id="L38">        User systemUser = new User();</span>
+<span class="fc" id="L39">        systemUser.setId(&quot;user-0&quot;);</span>
+<span class="fc" id="L40">        systemUser.setLogin(&quot;system&quot;);</span>
+<span class="fc" id="L41">        systemUser.setPassword(&quot;$2a$10$mE.qmcV0mFU5NcKh73TZx.z4ueI/.bDWbj0T1BYyqP481kGGarKLG&quot;);</span>
+<span class="fc" id="L42">        systemUser.setFirstName(&quot;&quot;);</span>
+<span class="fc" id="L43">        systemUser.setLastName(&quot;System&quot;);</span>
+<span class="fc" id="L44">        systemUser.setEmail(&quot;system@localhost&quot;);</span>
+<span class="fc" id="L45">        systemUser.setActivated(true);</span>
+<span class="fc" id="L46">        systemUser.setLangKey(&quot;en&quot;);</span>
+<span class="fc" id="L47">        systemUser.setCreatedBy(systemUser.getLogin());</span>
+<span class="fc" id="L48">        systemUser.setCreatedDate(Instant.now());</span>
+<span class="fc" id="L49">        systemUser.getAuthorities().add(adminAuthority);</span>
+<span class="fc" id="L50">        systemUser.getAuthorities().add(userAuthority);</span>
+<span class="fc" id="L51">        mongoTemplate.save(systemUser);</span>
+
+<span class="fc" id="L53">        User anonymousUser = new User();</span>
+<span class="fc" id="L54">        anonymousUser.setId(&quot;user-1&quot;);</span>
+<span class="fc" id="L55">        anonymousUser.setLogin(&quot;anonymoususer&quot;);</span>
+<span class="fc" id="L56">        anonymousUser.setPassword(&quot;$2a$10$j8S5d7Sr7.8VTOYNviDPOeWX8KcYILUVJBsYV83Y5NtECayypx9lO&quot;);</span>
+<span class="fc" id="L57">        anonymousUser.setFirstName(&quot;Anonymous&quot;);</span>
+<span class="fc" id="L58">        anonymousUser.setLastName(&quot;User&quot;);</span>
+<span class="fc" id="L59">        anonymousUser.setEmail(&quot;anonymous@localhost&quot;);</span>
+<span class="fc" id="L60">        anonymousUser.setActivated(true);</span>
+<span class="fc" id="L61">        anonymousUser.setLangKey(&quot;en&quot;);</span>
+<span class="fc" id="L62">        anonymousUser.setCreatedBy(systemUser.getLogin());</span>
+<span class="fc" id="L63">        anonymousUser.setCreatedDate(Instant.now());</span>
+<span class="fc" id="L64">        mongoTemplate.save(anonymousUser);</span>
+
+<span class="fc" id="L66">        User adminUser = new User();</span>
+<span class="fc" id="L67">        adminUser.setId(&quot;user-2&quot;);</span>
+<span class="fc" id="L68">        adminUser.setLogin(&quot;admin&quot;);</span>
+<span class="fc" id="L69">        adminUser.setPassword(&quot;$2a$10$gSAhZrxMllrbgj/kkK9UceBPpChGWJA7SYIb1Mqo.n5aNLq1/oRrC&quot;);</span>
+<span class="fc" id="L70">        adminUser.setFirstName(&quot;admin&quot;);</span>
+<span class="fc" id="L71">        adminUser.setLastName(&quot;Administrator&quot;);</span>
+<span class="fc" id="L72">        adminUser.setEmail(&quot;admin@localhost&quot;);</span>
+<span class="fc" id="L73">        adminUser.setActivated(true);</span>
+<span class="fc" id="L74">        adminUser.setLangKey(&quot;en&quot;);</span>
+<span class="fc" id="L75">        adminUser.setCreatedBy(systemUser.getLogin());</span>
+<span class="fc" id="L76">        adminUser.setCreatedDate(Instant.now());</span>
+<span class="fc" id="L77">        adminUser.getAuthorities().add(adminAuthority);</span>
+<span class="fc" id="L78">        adminUser.getAuthorities().add(userAuthority);</span>
+<span class="fc" id="L79">        mongoTemplate.save(adminUser);</span>
+
+<span class="fc" id="L81">        User userUser = new User();</span>
+<span class="fc" id="L82">        userUser.setId(&quot;user-3&quot;);</span>
+<span class="fc" id="L83">        userUser.setLogin(&quot;user&quot;);</span>
+<span class="fc" id="L84">        userUser.setPassword(&quot;$2a$10$VEjxo0jq2YG9Rbk2HmX9S.k1uZBGYUHdUcid3g/vfiEl7lwWgOH/K&quot;);</span>
+<span class="fc" id="L85">        userUser.setFirstName(&quot;&quot;);</span>
+<span class="fc" id="L86">        userUser.setLastName(&quot;User&quot;);</span>
+<span class="fc" id="L87">        userUser.setEmail(&quot;user@localhost&quot;);</span>
+<span class="fc" id="L88">        userUser.setActivated(true);</span>
+<span class="fc" id="L89">        userUser.setLangKey(&quot;en&quot;);</span>
+<span class="fc" id="L90">        userUser.setCreatedBy(systemUser.getLogin());</span>
+<span class="fc" id="L91">        userUser.setCreatedDate(Instant.now());</span>
+<span class="fc" id="L92">        userUser.getAuthorities().add(userAuthority);</span>
+<span class="fc" id="L93">        mongoTemplate.save(userUser);</span>
+<span class="fc" id="L94">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
