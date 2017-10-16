@@ -2,7 +2,7 @@ import java.text.SimpleDateFormat
 
 pipeline {
   agent {
-    label "docker-agent"
+    label "jenkinsslave"
   }
   options {
     buildDiscarder(logRotator(numToKeepStr: '2'))
@@ -39,7 +39,7 @@ steps {
     }
     stage("Deploy stack") {
       agent {
-        label "docker-agent"
+        label "jenkinsslave"
       }
       steps {
       	  sh "docker stack deploy -c docker-compose.yml ${env.JOB_NAME}" 
