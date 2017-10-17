@@ -12,8 +12,9 @@ pipeline {
   stage("Git Checkout") {
 steps {
     
-	git branch: 'master',
-            url: 'https://github.com/mbouluad/showcase.git' 
+	echo "Checkout .."
+	 //git branch: 'master',
+         //   url: 'https://github.com/mbouluad/showcase.git' 
     }
 }
     stage("Build containers") {
