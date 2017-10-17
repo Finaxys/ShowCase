@@ -9,10 +9,19 @@ pipeline {
     disableConcurrentBuilds()
   }
   stages {
+  stage("Clean workspace") {
+steps {
+
+      deleteDir()
+      sh 'ls -lah'
+    }
+}
   stage("Git Checkout") {
 steps {
     
-	echo "Checkout .."
+        //Checkout code from repository
+          checkout scm
+	
 	 //git branch: 'master',
          //   url: 'https://github.com/mbouluad/showcase.git' 
     }
