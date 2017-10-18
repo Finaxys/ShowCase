@@ -6,7 +6,7 @@ services:
             - "27017:27017"
 
     service2-app:
-        image: dtr.finaxys.com/mbouluad/service2:1.0
+        image: dtr.finaxys.com/mbouluad/service2:latest
         environment:
             - SPRING_PROFILES_ACTIVE=dev
             - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017
@@ -24,7 +24,7 @@ services:
         ports:
             - "27018:27018"
     api:
-        image: dtr.finaxys.com/mbouluad/service1:1.0
+        image: dtr.finaxys.com/mbouluad/service1:latest
         volumes:
             - /usr/src/api/node_modules
         ports:

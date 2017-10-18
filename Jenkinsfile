@@ -48,9 +48,7 @@ steps {
       }
     }
     stage("Deploy stack") {
-      agent {
-        label "jenkinsslave"
-      }
+ 
       steps {
       	  sh "docker stack deploy -c docker-compose.yml ${env.JOB_NAME}" 
       }
