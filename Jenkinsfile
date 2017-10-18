@@ -2,9 +2,10 @@ def app1
 def app2
 pipeline {
 
-   agent {
-    label "jenkinsslave"
-   }
+     agent any
+  // agent {
+  //  label "jenkinsslave"
+  // }
   
   options {
     buildDiscarder(logRotator(numToKeepStr: '2'))
