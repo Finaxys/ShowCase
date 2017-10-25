@@ -4,9 +4,14 @@ services:
         image: mongo
         ports:
             - "27017:27017"
+        deploy:
+          mode: global
+          placement:
+             constraints:
+                 - node.hostname == linuxWorker1
 
     service2-app:
-        image: dtr.finaxys.com/mbouluad/service2:latest
+        image: dtrfinaxys-cloud-expo.westeurope.cloudapp.azure.com/mbouluad/service2
         environment:
             - SPRING_PROFILES_ACTIVE=dev
             - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017
@@ -18,13 +23,23 @@ services:
             - mongo
         depends_on:
             - mongo
+        deploy:
+          mode: global
+          placement:
+             constraints:
+                 - node.hostname == linuxWorker1
     mymongo:
         image: mongo
         command: mongod --port 27018
         ports:
             - "27018:27018"
+        deploy:
+          mode: global
+          placement:
+             constraints:
+                 - node.hostname == linuxWorker1
     api:
-        image: dtr.finaxys.com/mbouluad/service1:latest
+        image: dtrfinaxys-cloud-expo.westeurope.cloudapp.azure.com/mbouluad/service1
         volumes:
             - /usr/src/api/node_modules
         ports:
@@ -33,4 +48,9 @@ services:
             - mymongo
         links:
             - mymongo
+        deploy:
+          mode: global
+          placement:
+             constraints:
+                 - node.hostname == linuxWorker1
 

@@ -4,7 +4,7 @@ ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
     JHIPSTER_SLEEP=0 \
     JAVA_OPTS=""
 
-CMD sudo ./mvnw package
+CMD ./mvnw package
 ADD target/*-SNAPSHOT.war /app.war
 
 EXPOSE 8081 5701/udp
