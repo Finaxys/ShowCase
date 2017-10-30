@@ -1,0 +1,29 @@
+<html lang="fr-FR">
+<head>
+<title>FINAXYS Ages</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link rel="stylesheet" href="../../static/css/style.css" type="text/css" />
+</head>
+<body>
+<div id="nav">
+</div>
+<div id="container">
+  <div id="header">
+    <h1>FINAXYS<span></span></h1>
+    <h2>NOTRE SINGULARITE ? NOUS SOMMES PLURIELS !</h2>
+  </div>
+  <img src="../../static/images/FINAXYS.png" width="480" height="240" alt="" class="centered" />
+</div>
+<ul>
+    {% for book in object_list %}
+    <li>{{ book.name }}  ({{ book.pages }} year)
+    <a href="{% url 'books_fbv_user:book_edit' book.id %}">edit</a>
+    <a href="{% url 'books_fbv_user:book_delete' book.id %}">delete</a>
+    </li>
+    {% endfor %}
+</ul>
+<br>
+<br>
+<a href="{% url 'books_fbv_user:book_new' %}">New</a>
+</body>
+</html>
