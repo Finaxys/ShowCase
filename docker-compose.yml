@@ -55,12 +55,22 @@ services:
                  - node.hostname == linuxWorker1
     dbpostg:
         image: postgres
+        deploy:
+          mode: global
+          placement:
+             constraints:
+                 - node.hostname == linuxWorker1
     service3-app:
         image: dtrfinaxys-cloud-expo.westeurope.cloudapp.azure.com/mbouluad/service3
-        command: python service3/manage.py runserver 0.0.0.0:8000
+        command: python manage.py runserver 0.0.0.0:8000
         volumes:
-            - .:/service3
+            - /service3
         ports:
             - "8000:8000"
         depends_on:
             - dbpostg
+        deploy:
+          mode: global
+          placement:
+             constraints:
+                 - node.hostname == linuxWorker1
