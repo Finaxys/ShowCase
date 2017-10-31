@@ -5,9 +5,11 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const statuses = require('statuses');
 const debug = require('debug');
+const os = require('os');
 const pjson = require('../package');
 
 const log = debug('dcnm:middleware');
+var interfaces = os.networkInterfaces();
 
 function initMiddleware(app, db) {
 	app.use(
@@ -25,10 +27,12 @@ function initMiddleware(app, db) {
 	});
 
 	app.get('/status', function getStatus(req, res) {
-		res.jsonp({
+
+  res.jsonp({
 			status: 'Microservice running ...',
-			version: pjson.version
+			ContainerID: os.hostname()
 		});
+	
 	});
 
 	app.post('/users', function createUser(req, res, next) {
