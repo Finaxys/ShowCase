@@ -1,0 +1,25 @@
+<div class="container">
+    <h2>Authors Table</h2>
+    <table class="table table-striped" id= "tab">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Name</th>
+          <th>delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let author of authors| paginate: {itemsPerPage: 6, currentPage:page, id: '1'}">
+          <td>{{author.Id}}</td>
+          <td>{{author.Name}}</td>
+          <td>
+         <button type="button" class="btn btn-default" (click)="onRemoveAuthor(author)">Delete</button></td>
+          </tr>
+      </tbody>
+    </table>
+    <pagination-controls (pageChange)="page = $event" id="1"
+    maxSize="5"
+    directionLinks="true"
+    autoHide="true">
+  </pagination-controls>`
+  </div>
