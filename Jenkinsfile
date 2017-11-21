@@ -1,5 +1,9 @@
 def app1
 def app2
+def app3
+def app4
+def app4data
+def app4client
 pipeline {
 
      agent any
@@ -52,6 +56,29 @@ pipeline {
                }
                   
            }
+        stage('Build service 3') {            
+              steps {
+                 dir ('service3') { 
+                    script {       
+                        app3 = docker.build("dtr.finaxys.com/mbouluad/service3")
+                    }
+                 }
+              }
+                   
+           }
+        stage('Build service 4') {            
+              steps {
+                 dir ('service4') { 
+                    script {       
+                        app4 = docker.build("dtr.finaxys.com/finaxys/app")
+                        app4data = docker.build("dtr.finaxys.com/finaxys/data")
+                        app4client = docker.build("dtr.finaxys.com/finaxys/angular")
+
+                    }
+                 }
+              }
+                   
+           }
       }
     
     }
@@ -79,6 +106,32 @@ pipeline {
 
                       app2.push("${env.BUILD_NUMBER}")
                       app2.push("latest")
+                      }
+                   } 
+            }
+            "Service 3" : {
+               
+                   script {
+           
+                      docker.withRegistry('https://dtr.finaxys.com', 'dtr') {
+
+                      app3.push("${env.BUILD_NUMBER}")
+                      app3.push("latest")
+                      }
+                   } 
+            }
+            "Service 4" : {
+               
+                   script {
+           
+                      docker.withRegistry('https://dtr.finaxys.com', 'dtr') {
+
+                      app4.push("${env.BUILD_NUMBER}")
+                      app4.push("latest")
+                      app4data.push("${env.BUILD_NUMBER}")
+                      app4data.push("latest")
+                      app4client.push("${env.BUILD_NUMBER}")
+                      app4client.push("latest")
                       }
                    } 
             }

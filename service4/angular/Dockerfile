@@ -15,7 +15,6 @@ COPY . /usr/src/app
 # Install dependecies
 RUN npm install
 
-RUN npm i
 # Expose the port the app runs in
 EXPOSE 4200
 

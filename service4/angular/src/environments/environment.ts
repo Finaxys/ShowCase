@@ -5,5 +5,5 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:52751/api/'
+  apiUrl: 'http://finaxysapp:52751/api/'
 };
