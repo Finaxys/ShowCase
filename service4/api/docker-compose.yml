@@ -2,24 +2,36 @@ version: '3'
 
 services:
   finaxysapp:
-    image: finaxysapp
-    build:
-      context: .\FinaxysApp
-      dockerfile: Dockerfile
-    depends_on: 
-     - sqlserver
+    image : dtrfinaxys-cloud-expo.westeurope.cloudapp.azure.com/finaxys/app
+    ports:
+      - "52751"
+    deploy:
+      placement:
+         constraints: [node.platform.OS == windows]
 
   finaxysdata:
-    image: finaxysdata
-    build:
-      context: .\FinaxysData
-      dockerfile: Dockerfile
+    image : dtrfinaxys-cloud-expo.westeurope.cloudapp.azure.com/finaxys/data
     depends_on: 
-     - sqlserver
+     - dbserversql
+    deploy:
+      placement:
+         constraints: [node.platform.OS == windows]
 
-  sqlserver:
-    image: microsoft/mssql-server-windows-developer
+  dbserversql:
+    image: microsoft/mssql-server-windows-express
+    ports:
+      - "1433:1433"
     environment:
-      - SA_PASSWORD="TEST@a14"
-      - ACCEPT_EULA="Y"
+      - sa_password=TEST@a14
+      - ACCEPT_EULA=Y
+    deploy:
+      placement:
+         constraints: [node.platform.OS == windows]
+  finaxysclient:
+    image : dtrfinaxys-cloud-expo.westeurope.cloudapp.azure.com/finaxys/angular
+    ports:
+      - 4200:4200
+    deploy:
+      placement:
+         constraints: [node.platform.OS == linux]
     
