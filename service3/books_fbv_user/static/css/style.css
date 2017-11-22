@@ -1,0 +1,62 @@
+/*--- RESET STYLES from Eric Meyer ---*/
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td { margin: 0; padding: 0; border: 0; outline: 0; font-weight: inherit; font-style: inherit; font-size: 100%; font-family: inherit; vertical-align: baseline; }
+
+:focus { outline: 0; }
+ol, ul { list-style: none; }
+
+table { border-collapse: separate; border-spacing: 0; }
+caption, th, td { text-align: left; font-weight: normal; }
+blockquote:before, blockquote:after, q:before, q:after { content: ""; }
+blockquote, q { quotes: "" ""; }
+strong { font-weight: bold; }
+
+/*--- STARTING STYLES ---*/
+
+body { font: normal 76% Arial,sans-serif; text-align: center; color: #333; background: #f8f8f8 url('../images/bg-gradient.gif') 0 3em repeat-x;  }
+p { margin: 0; padding: 0; }
+a, a:visited { color: #FF4F00;font-size: 200% }
+a:hover { text-decoration: none; }
+
+#header { position: relative; }
+#header h1 { font: bold 5em "Trebuchet MS", sans-serif; margin: 0; padding: 0.3em 0 0 0; color: #FF4F00; }
+#header h1 span { font: normal 0.8em Arial, sans-serif; color: #333; }
+#header h2 { font: italic 2em "Georgia", serif; margin: 0 0 1em 0; padding: 0; }
+#header a { position: absolute; right: 0; top: 23px; }
+h3 { font: italic 2.2em "Georgia", serif; color: #87ae12; }
+
+/*--- IMAGES CLASSES ---*/
+
+img.alignright { padding: 4px; margin: 0 0 2px 15px; display: inline; border: 0; }
+img.alignleft { padding: 4px; margin: 0 15px 2px 0; display: inline; border: 0; }
+img.centered { display: block; margin-left: auto; margin-right: auto; border: 0; }
+.alignright { float: right; }
+.alignleft { float: left }
+
+/*--- NAVIGATION ---*/
+
+#nav { margin: 0; padding: 10px; text-align: center; font: normal 2em Verdana, sans-serif; background-color: #333; }
+#nav ul li { display: inline; }
+#nav ul li a { display: inline; color: #fff; padding: 10px; text-decoration: none; }
+#nav ul li a:hover { text-decoration: underline; }
+#nav #current { background: transparent url('../images/indicator.gif') 50% 100% no-repeat; }
+
+#container { text-align: left; width: 700px; margin: 0 auto; }
+#container a { font-weight: bold; }
+
+/*--- CONTENT ---*/
+
+#content { float: left; width: 325px; margin: 0 50px 3em 0; }
+#content h3, #extra-content h3 { line-height: 40px; background: transparent url('../images/herbs.gif') no-repeat; padding: 0 0 0 50px; margin: 0.5em 0 1em 0; }
+#container p, #content p { line-height: 1.4; text-align: justify; margin: 2em 1em; }
+
+#extra-content { float: left; width: 325px; }
+#extra-content ul { list-style-type: square; list-style-position: inside; }
+#extra-content ul li { padding: 1em; border-bottom: 1px dotted #999; }
+fieldset { padding-left: 1em; }
+.button { background-color: #87ae12; border: none; color: #f8f8f8; }
+
+/*--- FOOTER ---*/
+
+#footer { clear: both; width: 100%; color: #333; background-color: #333; }
+#footer p { margin: 0; padding: 1em 10px; color: #f8f8f8; }
+#footer a { font-weight: bold; }

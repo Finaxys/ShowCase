@@ -1,0 +1,27 @@
+
+<form #heroForm="ngForm">
+  <div class="form-group  col-sm-6">
+  <label for="title" id="firstLabel">Title</label>
+  <input type="text" class="form-control" id="title"
+         required
+         [(ngModel)]="model.title" name="title">
+</div>
+
+<div class="  col-sm-6 form-group">
+  <label for="price">Price</label>
+  <input type="number"  class="form-control" id="price"
+         [(ngModel)]="model.price" name="price">
+</div>
+
+<div class=" col-sm-6 form-group">
+  <label for="author">Author</label>
+  <select class="form-control"  id="author"
+          required
+          [(ngModel)]="selectedValue" name="author">
+    <option *ngFor="let a of authors" [ngValue]="a">{{a.Name}}</option>
+  </select>
+</div>
+<div class="  col-sm-6 form-group">
+  <button type="button" class="btn btn-default" (click)="addBook()">Add new Book</button>
+</div>
+</form>

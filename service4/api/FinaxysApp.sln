@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2005
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinaxysApp", "FinaxysApp\FinaxysApp.csproj", "{6254DD9F-93D5-4019-9CC8-DA94C86B4355}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BEC36617-7553-4F00-9918-D94A0FC40128} = {BEC36617-7553-4F00-9918-D94A0FC40128}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinaxysData", "FinaxysData\FinaxysData.csproj", "{BEC36617-7553-4F00-9918-D94A0FC40128}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6254DD9F-93D5-4019-9CC8-DA94C86B4355}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6254DD9F-93D5-4019-9CC8-DA94C86B4355}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6254DD9F-93D5-4019-9CC8-DA94C86B4355}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6254DD9F-93D5-4019-9CC8-DA94C86B4355}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEC36617-7553-4F00-9918-D94A0FC40128}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEC36617-7553-4F00-9918-D94A0FC40128}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEC36617-7553-4F00-9918-D94A0FC40128}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEC36617-7553-4F00-9918-D94A0FC40128}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0FD6BCB9-650D-4C76-A935-E8F96B6148DF}
+	EndGlobalSection
+EndGlobal

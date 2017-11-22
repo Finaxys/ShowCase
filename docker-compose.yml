@@ -4,9 +4,13 @@ services:
         image: mongo
         ports:
             - "27017:27017"
+        deploy:
+          placement:
+             constraints:
+                 - node.hostname == linuxWorker1
 
     service2-app:
-        image: dtr.finaxys.com/mbouluad/service2:latest
+        image: dtrfinaxys-cloud-expo.westeurope.cloudapp.azure.com/mbouluad/service2
         environment:
             - SPRING_PROFILES_ACTIVE=dev
             - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017
@@ -18,13 +22,21 @@ services:
             - mongo
         depends_on:
             - mongo
+        deploy:
+          placement:
+             constraints:
+                 - node.hostname == linuxWorker1
     mymongo:
         image: mongo
         command: mongod --port 27018
         ports:
             - "27018:27018"
+        deploy:
+          placement:
+             constraints:
+                 - node.hostname == linuxWorker1
     api:
-        image: dtr.finaxys.com/mbouluad/service1:latest
+        image: dtrfinaxys-cloud-expo.westeurope.cloudapp.azure.com/mbouluad/service1
         volumes:
             - /usr/src/api/node_modules
         ports:
@@ -33,4 +45,59 @@ services:
             - mymongo
         links:
             - mymongo
+        deploy:
+          placement:
+             constraints:
+                 - node.hostname == linuxWorker1
+    dbpostg:
+        image: postgres
+        deploy:
+          placement:
+             constraints:
+                 - node.hostname == linuxWorker1
+    service3-app:
+        image: dtrfinaxys-cloud-expo.westeurope.cloudapp.azure.com/mbouluad/service3
+        command: python manage.py runserver 0.0.0.0:8000
+        volumes:
+            - /service3
+        ports:
+            - "8000:8000"
+        depends_on:
+            - dbpostg
+        deploy:
+          placement:
+             constraints:
+                 - node.hostname == linuxWorker1
+   finaxysapp:
+    image : dtrfinaxys-cloud-expo.westeurope.cloudapp.azure.com/finaxys/app
+    ports:
+      - "52751"
+    deploy:
+      placement:
+         constraints: [node.platform.OS == windows]
 
+   finaxysdata:
+    image : dtrfinaxys-cloud-expo.westeurope.cloudapp.azure.com/finaxys/data
+    depends_on: 
+     - dbserversql
+    deploy:
+      placement:
+         constraints: [node.platform.OS == windows]
+
+   dbserversql:
+    image: microsoft/mssql-server-windows-express
+    ports:
+      - "1433:1433"
+    environment:
+      - sa_password=TEST@a14
+      - ACCEPT_EULA=Y
+    deploy:
+      placement:
+         constraints: [node.platform.OS == windows]
+   finaxysclient:
+    image : dtrfinaxys-cloud-expo.westeurope.cloudapp.azure.com/finaxys/angular
+    ports:
+      - 4200:4200
+    deploy:
+      placement:
+         constraints: [node.platform.OS == linux]
